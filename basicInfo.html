@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta charset="utf-8" />
+		<script src="./js/rem.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="./font-awesome/css/font-awesome.css" />
+		<link rel="stylesheet" type="text/css" href="./css/common.css" />
+		<link rel="stylesheet" type="text/css" href="./css/main.css" />
+		<link rel="stylesheet" type="text/css" href="./js/vant/index.css"/>
+		<title>基本信息</title>
+	</head>
+	<body>
+
+		<div id="app" class="xz-container">
+			<!-- 头部nav -->
+			<header class="xz-header">
+				<a href="" class="float_l" onclick="Mplat.nativeBack()"><i class="fa fa-angle-left"></i></a>
+				<p>基本信息</p>
+			</header>
+
+			<!-- 内容部分 content -->
+			<div class="xz-conetnt">
+				<ul class="info" v-show="infoList.length > 0">
+					<li v-for="item in infoList">
+						<p class="info-l tit" v-text="item.title"></p>
+						<p class="info-r sub-tit" v-text="item.value"></p>
+					</li>
+				</ul>
+				<div class="cer-info" v-show="cerList.length > 0">
+					<p class="cer-tit tit">证书信息</p>
+					<ul class="sub-tit">
+						<li v-for="item in cerList">
+							<p class="tit" v-cloak>{{item.certificate_type}}</p>
+							<p class="sub-tit" v-cloak>{{item.certificate_contect}}</p>
+						</li>
+					</ul>
+				</div>
+				
+				
+				<van-empty description="未查询到用户基本信息" v-show="infoList.length <= 0"/>
+			</div>
+		</div>
+
+		<script src="./js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script>Vue.config.productionTip=false</script>
+		<script src="./js/vant/vant.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/axios.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/common.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/bridge.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/basePath.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/request/request.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/validate.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			const app = new Vue({
+				el: "#app",
+				data: {
+					param:{account: "",zwName: ""},
+					infoList:[],//基本信息
+					cerList:[],//证书信息
+				},
+				methods: {
+					//获取基本信息
+					queryBaseInfo() {
+						var that = this;
+						axios.post(url_baseInfo,this.param).then(res => {
+							console.log(res);
+							var data = res.data;
+							if (data.code == 1) {
+								that.infoList = data.data;
+								that.cerList = data.zwCertificate;
+							}
+						}).catch(err => {
+							console.log(err);
+						});
+					}
+				},
+				created() {
+					console.log('created......');
+					var that = this;
+					Mplat.init(function() {
+						Mplat.getSeesion(function(data) {
+							var json = Common.strToJson(data);
+							that.param.account = json.userId;
+							that.param.zwName = json.zwName;
+							that.queryBaseInfo();
+						})
+					});
+					
+				},
+				mounted() {
+					console.log('mounted......');
+
+				},
+				updated() {
+					console.log('updated......');
+				}
+			})
+		</script>
+	</body>
+</html>
